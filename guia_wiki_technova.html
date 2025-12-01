@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechNova Wiki | Padrões de Arquitetura de Rede</title>
+    <style>
+      :root {
+        --primary-color: #0044cc; /* TechNova Blue */
+        --sidebar-bg: #f4f5f7;
+        --text-color: #172b4d;
+        --bg-color: #ffffff;
+        --border-color: #dfe1e6;
+        --code-bg: #f4f5f7;
+        --note-bg: #e6fcff;
+        --note-border: #00b8d9;
+        --arch-bg: #fff0b3; /* Cor para a justificativa do arquiteto */
+        --arch-border: #ff991f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        color: var(--text-color);
+        margin: 0;
+        display: flex;
+        min-height: 100vh;
+        background-color: var(--bg-color);
+      }
+
+      /* Sidebar Navigation */
+      .sidebar {
+        width: 280px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .nav-links li {
+        margin-bottom: 8px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #42526e;
+        display: block;
+        padding: 8px 12px;
+        border-radius: 4px;
+        transition: background 0.2s;
+        font-size: 0.95rem;
+      }
+
+      .nav-links a.active {
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .nav-links a:hover {
+        background-color: #ebecf0;
+        color: var(--primary-color);
+      }
+
+      .nav-links .sub-link {
+        padding-left: 24px;
+        font-size: 0.9rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        padding: 40px 60px;
+        max-width: 900px;
+        width: 100%;
+      }
+
+      /* Breadcrumbs & Header */
+      .breadcrumbs {
+        font-size: 0.85rem;
+        color: #6b778c;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        color: var(--text-color);
+        letter-spacing: -0.5px;
+      }
+
+      .meta-info {
+        font-size: 0.9rem;
+        color: #6b778c;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 20px;
+      }
+
+      h2 {
+        margin-top: 48px;
+        margin-bottom: 24px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--border-color);
+        color: var(--primary-color);
+      }
+
+      h3 {
+        margin-top: 32px;
+        font-size: 1.4rem;
+      }
+
+      p,
+      li {
+        line-height: 1.6;
+        margin-bottom: 12px;
+      }
+
+      /* Callout Boxes */
+      .decision-box {
+        background-color: var(--note-bg);
+        border-left: 4px solid var(--note-border);
+        padding: 16px;
+        border-radius: 4px;
+        margin: 16px 0;
+      }
+
+      .architect-insight {
+        background-color: #fafbfc;
+        border: 1px solid var(--border-color);
+        border-left: 4px solid var(--primary-color);
+        padding: 24px;
+        border-radius: 6px;
+        margin: 24px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .architect-insight h4 {
+        margin-top: 0;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      code {
+        background-color: var(--code-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+          monospace;
+        font-size: 0.9em;
+        color: #d63384;
+      }
+
+      /* Responsiveness */
+      @media (max-width: 768px) {
+        .sidebar {
+          display: none;
+        }
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+      }
+
+      /*#############################################*/
+      /* Style Diagrama */
+      .topology-section {
+        margin: 40px 0;
+        text-align: center;
+      }
+
+      .topology-figure {
+        margin: 0;
+        background-color: #f4f5f7;
+        padding: 20px;
+        border: 1px solid #dfe1e6;
+        border-radius: 8px;
+        display: inline-block; /* Ajusta ao tamanho da imagem */
+        max-width: 100%;
+      }
+
+      .topology-figure img {
+        max-width: 100%; /* Torna a imagem responsiva */
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: white; /* Garante fundo branco se o PNG for transparente */
+      }
+
+      .topology-caption {
+        margin-top: 12px;
+        font-size: 0.9rem;
+        color: #5e6c84;
+        font-style: italic;
+      }
+
+      /* Link para clicar e ampliar */
+      .img-link {
+        display: block;
+        cursor: zoom-in;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="sidebar">
+      <div class="brand">🌐 TechNova Wiki</div>
+      <ul class="nav-links">
+        <li><a href="#" class="active">🏠 Home</a></li>
+        <li><a href="engenheiros.html">👥 Engenheiros</a></li>
+        <li><strong>📄 Arquitetura de Rede</strong></li>
+        <li><a href="#modulo-1" class="sub-link">Módulo 1: LAN & Acesso</a></li>
+        <li><a href="#modulo-2" class="sub-link">Módulo 2: Core & WAN</a></li>
+        <li><a href="#modulo-3" class="sub-link">Módulo 3: Diagnóstico</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <div class="breadcrumbs">
+        Engenharia > Infraestrutura > Onboarding >
+        <strong>Guia de Arquitetura</strong>
+      </div>
+
+      <h1>Padrões de Arquitetura de Rede</h1>
+
+      <div class="meta-info">
+        <strong>Status:</strong> Aprovado ✅ &nbsp;|&nbsp;
+        <strong>Público:</strong> Novos Engenheiros de Rede &nbsp;|&nbsp;
+        <strong>Última atualização:</strong> 30 Nov 2025
+      </div>
+
+      <div
+        class="decision-box"
+        style="border-left-color: #36b37e; background-color: #e3fcef"
+      >
+        <strong>👋 Bem-vindo ao time TechNova!</strong><br />
+        Este documento serve como nosso "Source of Truth". Aqui você não
+        encontrará apenas <em>o que</em> fazemos, mas principalmente
+        <em>por que</em> fazemos. Como engenheiros da TechNova, esperamos que
+        você entenda a teoria por trás de cada comando configurado.
+      </div>
+
+      <div class="topology-section">
+        <h3>🗺️ Visão Geral da Topologia</h3>
+        <figure class="topology-figure">
+          <a
+            href="diagrama_topologia.drawio.png"
+            target="_blank"
+            class="img-link"
+            title="Clique para ampliar"
+          >
+            <img
+              src="diagrama_topologia.drawio.png"
+              alt="Diagrama de Topologia de Rede TechNova com anotações de protocolos"
+            />
+          </a>
+          <figcaption class="topology-caption">
+            Figura 1: Arquitetura de Referência TechNova (OSPF Area 0, BGP
+            Peering e Trunks 802.1Q).
+          </figcaption>
+        </figure>
+      </div>
+
+      <h2 id="modulo-1">🏗️ Módulo 1: Acesso e Comutação (LAN)</h2>
+
+      <h3>1.1 Do Caos à Ordem: Switches vs. Hubs</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> Utilizar exclusivamente
+        <code>Switches Ethernet L2/L3</code> gerenciáveis. O uso de Hubs é
+        proibido na infraestrutura de produção.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <ul>
+          <li>
+            <strong>Domínio de Colisão:</strong> Hubs operam na Camada 1
+            (Física), repetindo sinais cegamente e criando um único domínio de
+            colisão massivo. Switches operam na Camada 2 (Enlace), isolando
+            domínios de colisão por porta. Isso elimina a latência causada pelo
+            algoritmo CSMA/CD em redes saturadas.
+          </li>
+          <li>
+            <strong>Full-Duplex:</strong> Apenas switches permitem comunicação
+            bidirecional simultânea (Full-Duplex), dobrando a banda efetiva do
+            link.
+          </li>
+          <li>
+            <strong>Segurança:</strong> Hubs permitem sniffing passivo fácil
+            (qualquer um vê o tráfego de todos). Switches direcionam quadros
+            apenas ao MAC de destino.
+          </li>
+        </ul>
+      </div>
+
+      <h3>1.2 Segmentação com VLANs (802.1Q)</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> Implementar segmentação lógica
+        rigorosa utilizando o padrão IEEE 802.1Q em todos os links trunk.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <p>
+          Não segmentamos apenas por organização, mas por
+          <strong>desempenho</strong> e <strong>segurança</strong>:
+        </p>
+        <ul>
+          <li>
+            <strong>Contenção de Broadcast:</strong> Um broadcast ARP em uma
+            rede plana ("flat network") interrompe a CPU de todos os hosts.
+            VLANs reduzem esse escopo.
+          </li>
+          <li>
+            <strong>Tagging 802.1Q:</strong> Adicionamos 4 bytes ao cabeçalho
+            Ethernet para identificar o tráfego. Isso permite que um único link
+            físico transporte múltiplas redes lógicas (redução de CAPEX).
+          </li>
+          <li>
+            <strong>Segurança Lateral:</strong> Impede que um host comprometido
+            no "RH" acesse diretamente um servidor no "Financeiro" via L2.
+            Forçamos o tráfego a subir para L3 (Roteador/Firewall), onde
+            aplicamos ACLs.
+          </li>
+        </ul>
+      </div>
+
+      <h3>1.3 A Cola da Rede: ARP e Segurança</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> Monitoramento ativo de tabelas ARP
+        e uso de DAI (Dynamic ARP Inspection) nos switches de acesso.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <p>
+          O ARP é o elo vulnerável entre o endereço lógico (IP) e o físico
+          (MAC).
+        </p>
+        <ul>
+          <li>
+            <strong>O Risco (Spoofing):</strong> O protocolo ARP é "stateless" e
+            confia em qualquer resposta. Um atacante pode enviar respostas ARP
+            falsas (Gratuitous ARP) para se colocar como Man-in-the-Middle.
+          </li>
+          <li>
+            <strong>A Defesa (DAI):</strong> Nossos switches cruzam as
+            requisições ARP com a tabela de "DHCP Snooping" para garantir que o
+            IP X realmente pertence ao MAC Y antes de encaminhar o pacote.
+          </li>
+        </ul>
+      </div>
+
+      <h2 id="modulo-2">🧠 Módulo 2: Roteamento e Controle (Core & WAN)</h2>
+
+      <h3>2.1 Roteamento Interno (Intra-AS): OSPF</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> OSPF (Open Shortest Path First) é
+        nosso protocolo de gateway interior (IGP) padrão.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <ul>
+          <li>
+            <strong>Link-State vs. Distance Vector:</strong> Rejeitamos
+            RIP/EIGRP em favor do OSPF porque ele constrói um mapa completo da
+            rede (LSDB) em cada nó. Isso previne loops de roteamento de forma
+            mais eficaz do que a contagem de saltos.
+          </li>
+          <li>
+            <strong>Convergência Rápida:</strong> Em caso de falha de link, o
+            algoritmo Dijkstra recalcula a rota em milissegundos, essencial para
+            nossos SLAs.
+          </li>
+          <li>
+            <strong>Hierarquia:</strong> O uso de <code>Area 0</code> (Backbone)
+            e áreas stub nos permite sumarizar rotas e isolar instabilidades de
+            uma filial para não afetar o core.
+          </li>
+        </ul>
+      </div>
+
+      <h3>2.2 Conexão com a Internet: BGP</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> BGP (Border Gateway Protocol) para
+        todas as bordas com ISPs.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <p>
+          Diferente do OSPF, que busca a rota mais rápida, o BGP busca a rota
+          que obedece à <strong>Política</strong>.
+        </p>
+        <ul>
+          <li>
+            <strong>Atributos de Caminho:</strong> Usamos
+            <code>Local_Pref</code> para decidir por qual link saímos e
+            <code>AS_Path Prepending</code> para influenciar por onde o tráfego
+            entra.
+          </li>
+          <li>
+            <strong>Escalabilidade Global:</strong> É o único protocolo capaz de
+            lidar com a tabela completa da Internet (>900k rotas) sem travar.
+          </li>
+        </ul>
+      </div>
+
+      <h3>2.3 Inovação: SDN e OpenFlow</h3>
+      <p>
+        <strong>A Decisão TechNova:</strong> Adoção de arquitetura SDN Híbrida.
+      </p>
+
+      <div class="architect-insight">
+        <h4>🧠 Por que decidimos isso? (Teoria Aplicada)</h4>
+        <ul>
+          <li>
+            <strong>Desacoplamento:</strong> Separamos o
+            <em>Control Plane</em> (o "cérebro" que decide) do
+            <em>Data Plane</em> (o "músculo" que encaminha pacotes).
+          </li>
+          <li>
+            <strong>Programabilidade:</strong> Em vez de configurar 500 switches
+            via CLI manualmente, um Controlador Central envia fluxos (Flow
+            Tables) via OpenFlow. Isso garante consistência de configuração e
+            permite mudanças globais em segundos.
+          </li>
+        </ul>
+      </div>
+
+      <h2 id="modulo-3">🛠️ Módulo 3: Diagnóstico e Monitoramento</h2>
+
+      <h3>3.1 Traceroute e TTL</h3>
+      <p>
+        <strong>Uso Padrão:</strong> Diagnóstico de latência salto-a-salto e
+        assimetria de rotas.
+      </p>
+
+      <div class="decision-box">
+        <strong>Nota Técnica:</strong> Lembre-se que o Traceroute manipula o
+        campo <code>TTL</code> (Time To Live). Ele envia pacotes com TTL=1,
+        TTL=2, etc., forçando os roteadores no caminho a descartarem o pacote e
+        retornarem uma mensagem ICMP "Time Exceeded". É assim que mapeamos a
+        rede.
+      </div>
+
+      <h3>3.2 SNMPv3</h3>
+      <p>
+        <strong>Uso Padrão:</strong> Coleta de métricas (Throughput, CPU, Erros
+        de CRC) e Traps.
+      </p>
+
+      <div class="decision-box">
+        <strong>Nota de Segurança:</strong> O uso de SNMPv1 ou v2c é proibido
+        devido ao envio de "community strings" (senhas) em texto plano. Usamos
+        estritamente <strong>SNMPv3</strong> que implementa criptografia e
+        autenticação robusta.
+      </div>
+    </main>
+  </body>
+</html>
