@@ -23,13 +23,3 @@ Este repositório contém a Wiki de Padrões de Arquitetura de Rede da TechNova,
 ## Como visualizar
 
 Abra o arquivo `index.html` em seu navegador para acessar a Wiki interativa, com navegação lateral, tópicos detalhados e diagrama de topologia.
-
-## Sobre
-
-- **Status:** Aprovado
-- **Público:** Novos Engenheiros de Rede
-- **Última atualização:** 30 Nov 2025
-
----
-
-Para dúvidas ou sugestões, consulte a equipe de Engenharia de Redes da TechNova.
